@@ -8,6 +8,11 @@ services:
       MYSQL_DATABASE: todo_db
       MYSQL_USER: todo_user
       MYSQL_PASSWORD: todo_pass
+    command: [
+      "--character-set-server=utf8mb4",
+      "--collation-server=utf8mb4_unicode_ci",
+      "--skip-character-set-client-handshake"
+    ]
     ports:
       - "3306:3306"
     volumes:
@@ -37,18 +42,6 @@ services:
       NEXT_PUBLIC_API_HOST: http://localhost:3001
     depends_on:
       - api
-
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    restart: always
-    ports:
-      - "8080:80"
-    environment:
-      PMA_HOST: mysql
-      PMA_USER: todo_user
-      PMA_PASSWORD: todo_pass
-    depends_on:
-      - mysql
 
 volumes:
   mysql_data:
