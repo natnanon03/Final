@@ -15,12 +15,18 @@ const pool = mysql.createPool({
   port: Number(process.env.DB_PORT),
 });
 
-// health check
+// root route (for Jenkins health check)
+app.get("/", (req, res) => {
+  res.json({ message: "API is running" });
+});
+
+// health check route
 app.get('/health', async (req, res) => {
   try {
     const [rows] = await pool.query("SELECT 1 AS ok");
     res.json({ status: "ok" });
   } catch (err) {
+    console.error("DB health check failed:", err);
     res.status(500).json({ status: "error" });
   }
 });
