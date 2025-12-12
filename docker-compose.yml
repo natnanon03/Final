@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   mysql:
     image: mysql:8.0
@@ -18,6 +16,19 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: u6603131-phpmyadmin
+    restart: always
+    ports:
+      - "8888:80"        # ← เข้า phpMyAdmin ผ่าน port 8888
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: todo_user
+      PMA_PASSWORD: todo_pass
+    depends_on:
+      - mysql
 
   api:
     build: ./01_api
