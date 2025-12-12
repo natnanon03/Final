@@ -15,32 +15,42 @@ const pool = mysql.createPool({
   port: Number(process.env.DB_PORT),
 });
 
-// root route (for Jenkins health check)
+// health check
 app.get("/", (req, res) => {
   res.json({ message: "API is running" });
 });
 
-// health check route
-app.get('/health', async (req, res) => {
-  try {
-    const [rows] = await pool.query("SELECT 1 AS ok");
-    res.json({ status: "ok" });
-  } catch (err) {
-    console.error("DB health check failed:", err);
-    res.status(500).json({ status: "error" });
-  }
-});
-
-// get all todos
+// GET all todos — ส่ง date + time ให้ฝั่ง frontend ใช้
 app.get('/todos', async (req, res) => {
-  const [rows] = await pool.query("SELECT * FROM todo ORDER BY id DESC");
+  const [rows] = await pool.query(`
+      SELECT 
+        id,
+        title,
+        completed,
+        DATE(event_datetime) AS date,
+        TIME_FORMAT(event_datetime, '%H:%i') AS time,
+        event_datetime
+      FROM todo
+      ORDER BY event_datetime ASC, id ASC
+    `);
+
   res.json(rows);
 });
 
-// create todo
+// CREATE todo (รับ title, date, time)
 app.post('/todos', async (req, res) => {
-  const { title } = req.body;
-  await pool.query("INSERT INTO todo (title) VALUES (?)", [title]);
+  const { title, date, time } = req.body;
+
+  const finalDate = date ?? new Date().toISOString().split("T")[0];
+  const finalTime = time ?? "00:00:00";
+
+  const eventDT = `${finalDate} ${finalTime}`;
+
+  await pool.query(
+    "INSERT INTO todo (title, event_datetime) VALUES (?, ?)",
+    [title, eventDT]
+  );
+
   res.json({ message: "created" });
 });
 
