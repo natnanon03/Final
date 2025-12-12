@@ -22,11 +22,10 @@ services:
     container_name: u6603131-phpmyadmin
     restart: always
     ports:
-      - "8888:80"        # ← เข้า phpMyAdmin ผ่าน port 8888
+      - "8888:80"
     environment:
       PMA_HOST: mysql
-      PMA_USER: todo_user
-      PMA_PASSWORD: todo_pass
+      PMA_ARBITRARY: 1      # ← ให้ phpMyAdmin โชว์หน้า login และไม่ auto login
     depends_on:
       - mysql
 
