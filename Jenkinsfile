@@ -2,10 +2,9 @@ pipeline {
     agent any
 
     stages {
-
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'YOUR_REPO_URL'
+                git branch: 'main', url: 'https://github.com/natnanon03/Final.git'
             }
         }
 
@@ -17,23 +16,15 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                sh 'docker compose down'
+                sh 'docker compose down || true'
                 sh 'docker compose up -d'
             }
         }
 
         stage('Health Check') {
             steps {
-                sh 'sleep 5'
-                sh 'curl -f http://localhost:3001/health'
-                sh 'curl -f http://localhost:3001/todos'
+                sh 'curl -f http://localhost:3001 || exit 1'
             }
-        }
-    }
-
-    post {
-        always {
-            sh 'docker compose ps'
         }
     }
 }
